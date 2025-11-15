@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -23,4 +25,9 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
     private String password;
+
+    // Vericação do email
+    private String verificationCode; // código enviado por e-mail
+    private Boolean verified = false; // true se o usuário confirmou o e-mail
+    private Instant verificationExpiry; // expiração do código
 }
