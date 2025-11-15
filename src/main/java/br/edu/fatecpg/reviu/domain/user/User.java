@@ -1,5 +1,6 @@
 package br.edu.fatecpg.reviu.domain.user;
 
+import br.edu.fatecpg.reviu.domain.deck.Deck;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -30,4 +33,7 @@ public class User {
     private String verificationCode; // código enviado por e-mail
     private Boolean verified = false; // true se o usuário confirmou o e-mail
     private Instant verificationExpiry; // expiração do código
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Deck> decks = new ArrayList<>();
 }

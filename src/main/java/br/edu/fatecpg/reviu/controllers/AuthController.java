@@ -77,7 +77,6 @@ public class AuthController {
             return ResponseEntity.ok("Usuário já verificado.");
         }
 
-        // Checar expiração
         if (user.getVerificationExpiry() != null &&
                 Instant.now().isAfter(user.getVerificationExpiry())) {
             return ResponseEntity.badRequest().body("Código expirado. Solicite um novo.");
@@ -115,6 +114,4 @@ public class AuthController {
 
         return ResponseEntity.ok("Novo código enviado para seu e-mail.");
     }
-
-
 }
