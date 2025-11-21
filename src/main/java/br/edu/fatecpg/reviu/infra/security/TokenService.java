@@ -23,6 +23,7 @@ public class TokenService {
             return JWT.create()
                     .withIssuer("reviu")
                     .withSubject(user.getEmail())
+                    .withClaim("id", user.getId())
                     .withExpiresAt(LocalDateTime.now().plusHours(6).toInstant(ZoneOffset.of("-03:00")))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
