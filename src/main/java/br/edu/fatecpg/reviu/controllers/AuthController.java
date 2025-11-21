@@ -1,21 +1,16 @@
 package br.edu.fatecpg.reviu.controllers;
 
 import br.edu.fatecpg.reviu.domain.user.User;
-import br.edu.fatecpg.reviu.dto.LoginRequestDTO;
-import br.edu.fatecpg.reviu.dto.LoginAndRegisterResponseDTO;
-import br.edu.fatecpg.reviu.dto.RegisterRequestDTO;
-import br.edu.fatecpg.reviu.dto.VerifyCodeDTO;
+import br.edu.fatecpg.reviu.dto.*;
 import br.edu.fatecpg.reviu.infra.security.TokenService;
 import br.edu.fatecpg.reviu.repositories.UserRepository;
 import br.edu.fatecpg.reviu.services.AuthService;
 import br.edu.fatecpg.reviu.services.EmailService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -42,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterRequestDTO body){
+    public ResponseEntity register(@Valid @RequestBody RegisterRequestDTO body){
         Optional<User> user = this.userRepository.findByEmail(body.email());
         if (user.isEmpty()) {
             User newUser = new User();
