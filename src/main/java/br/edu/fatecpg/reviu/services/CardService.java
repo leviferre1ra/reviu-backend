@@ -33,6 +33,9 @@ public class CardService {
         card.setBackText(request.backText());
         card.setDeck(deck);
 
+        card.setImageUrl(request.imageUrl());
+        card.setAudioUrl(request.audioUrl());
+
         card.setRepetitions(0);
         card.setInterval(1);
         card.setEasinessFactor(2.5);

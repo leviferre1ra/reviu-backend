@@ -6,12 +6,15 @@ import br.edu.fatecpg.reviu.domain.user.User;
 import br.edu.fatecpg.reviu.dto.*;
 import br.edu.fatecpg.reviu.services.CardService;
 import br.edu.fatecpg.reviu.services.DeckService;
+import br.edu.fatecpg.reviu.services.UploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CardController {
     private final CardService cardService;
+    private final UploadService  uploadService;
 
     @PostMapping
     public ResponseEntity<CardResponseDTO> createCard(@PathVariable Long deckId, @RequestBody CardRequestDTO request){
@@ -62,5 +66,11 @@ public class CardController {
 
        List<Card> dueCards = cardService.getDueCards(deckId);
        return ResponseEntity.ok(dueCards.stream().map(CardResponseDTO::new).toList());
+    }
+
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<UploadResponseDTO> upload(@RequestParam MultipartFile file) throws IOException {
+        String url = uploadService.uploadFile(file);
+        return ResponseEntity.ok(new UploadResponseDTO(url));
     }
 }

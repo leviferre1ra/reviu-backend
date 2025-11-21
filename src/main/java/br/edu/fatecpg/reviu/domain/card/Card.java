@@ -26,6 +26,9 @@ public class Card {
     private String frontText;
     private String backText;
 
+    private String imageUrl;
+    private String audioUrl;
+
     private int repetitions;
     private int interval;
     private double easinessFactor;

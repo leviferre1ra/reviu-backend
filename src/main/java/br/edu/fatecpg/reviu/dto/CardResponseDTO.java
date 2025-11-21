@@ -5,7 +5,7 @@ import br.edu.fatecpg.reviu.domain.card.Card;
 import java.time.LocalDate;
 import java.util.List;
 
-public record CardResponseDTO(Long id, String frontText, String backText, int repetition, int interval, double easinessFactor, LocalDate nextReview) {
+public record CardResponseDTO(Long id, String frontText, String backText, int repetition, int interval, double easinessFactor, LocalDate nextReview, String imageUrl, String audioUrl) {
     public CardResponseDTO(Card card){
         this(
                 card.getId(),
@@ -15,7 +15,9 @@ public record CardResponseDTO(Long id, String frontText, String backText, int re
                 card.getRepetitions(),
                 card.getInterval(),
                 card.getEasinessFactor(),
-                card.getNextReview()
+                card.getNextReview(),
+                card.getImageUrl(),
+                card.getAudioUrl()
         );
     }
 }

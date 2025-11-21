@@ -87,8 +87,8 @@ public class AuthController {
     }
 
     @PostMapping("/resend-verification")
-    public ResponseEntity<?> resendVerification(@RequestBody String email) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+    public ResponseEntity<?> resendVerification(@RequestBody EmailRequestDTO body) {
+        Optional<User> optionalUser = userRepository.findByEmail(body.email());
 
         if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body("Usuário não encontrado.");
