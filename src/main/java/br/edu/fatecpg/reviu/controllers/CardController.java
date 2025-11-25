@@ -155,12 +155,13 @@ public class CardController {
             @ApiResponse(responseCode = "200", description = "Cartas criadas com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos ou deck inexistente")
     })
-    public ResponseEntity<List<Card>> createMany(
+    public ResponseEntity<List<CardResponseDTO>> createMany(
             @PathVariable Long deckId,
             @RequestBody List<CardRequestDTO> requests
     ) {
         List<Card> cards = cardService.createManyCards(deckId, requests);
-        return ResponseEntity.ok(cards);
+        List<CardResponseDTO> response= cards.stream().map(CardResponseDTO::new).toList();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/generate-from-file")
