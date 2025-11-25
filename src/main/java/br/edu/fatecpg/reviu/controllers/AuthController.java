@@ -152,6 +152,14 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
+    @Operation(
+            summary = "Envia código de redefinição de senha",
+            description = "Gera um código temporário para redefinir a senha e envia para o e-mail do usuário."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Código de redefinição enviado"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
     public ResponseEntity<?> forgotPassword(@RequestBody EmailRequestDTO request){
         User user = this.userRepository.findByEmail(request.email()).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -165,6 +173,14 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
+    @Operation(
+            summary = "Redefine a senha usando o código de recuperação",
+            description = "Valida o código enviado ao e-mail do usuário e permite a criação de uma nova senha."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Senha alterada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Usuário não encontrado, código inválido ou expirado")
+    })
     public ResponseEntity<?> resetForgotPassword(@Valid @RequestBody ResetForgotPasswordDTO request){
         Optional<User> optionalUser = userRepository.findByForgotPasswordCode(request.code());
 

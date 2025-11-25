@@ -147,6 +147,14 @@ public class CardController {
     }
 
     @PostMapping("/bulk")
+    @Operation(
+            summary = "Cria múltiplas cartas de uma vez",
+            description = "Recebe uma lista de cartas e as adiciona ao deck especificado pelo ID."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cartas criadas com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou deck inexistente")
+    })
     public ResponseEntity<List<Card>> createMany(
             @PathVariable Long deckId,
             @RequestBody List<CardRequestDTO> requests
@@ -156,6 +164,14 @@ public class CardController {
     }
 
     @PostMapping("/generate-from-file")
+    @Operation(
+            summary = "Gera cartas a partir de um arquivo PDF",
+            description = "Extrai o texto de um PDF enviado e gera cartas automaticamente utilizando IA."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cartas geradas com sucesso a partir do PDF"),
+            @ApiResponse(responseCode = "400", description = "Arquivo inválido ou falha na extração do texto")
+    })
     public ResponseEntity<String> generateFromPdf(@RequestParam("file") MultipartFile file) {
         String text = pdfService.extractText(file);
         String jsonCards = geminiAiService.createCards(text);
