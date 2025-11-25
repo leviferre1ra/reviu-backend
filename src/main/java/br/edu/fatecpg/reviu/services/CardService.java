@@ -21,9 +21,7 @@ public class CardService {
     private final DictionaryAPIService  dictionaryAPIService;
 
     //CREATE
-    public Card createCard(Long deckId, CardRequestDTO request) {
-        Deck deck = deckRepository.findById(deckId)
-                .orElseThrow(() -> new EntityNotFoundException("Deck not found"));
+    private Card buildCard(Deck deck, CardRequestDTO request) {
 
         Card card = new Card();
         card.setFrontText(request.frontText());
@@ -33,9 +31,19 @@ public class CardService {
         card.setImageUrl(request.imageUrl());
         card.setAudioUrl(request.audioUrl());
 
+        // Só tenta buscar áudio se o usuário NÃO mandou um
         if (request.audioUrl() == null) {
-            String audioUrl = dictionaryAPIService.getFirstAudioUrl(request.frontText());
-            card.setAudioUrl(audioUrl);
+
+            String word = request.frontText().trim();
+
+            // Se a palavra é válida para a Dictionary API
+            if (isValidDictionaryWord(word)) {
+
+                // Então puxa o áudio
+                String audioUrl = dictionaryAPIService.getFirstAudioUrl(word);
+
+                card.setAudioUrl(audioUrl);
+            }
         }
 
         card.setRepetitions(0);
@@ -43,9 +51,30 @@ public class CardService {
         card.setEasinessFactor(2.5);
         card.setNextReview(LocalDate.now());
 
-        return cardRepository.save(card);
-
+        return card;
     }
+
+
+    public Card createCard(Long deckId, CardRequestDTO request) {
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new EntityNotFoundException("Deck not found"));
+
+        Card card = buildCard(deck, request);
+
+        return cardRepository.save(card);
+    }
+
+    public List<Card> createManyCards(Long deckId, List<CardRequestDTO> requests) {
+        Deck deck = deckRepository.findById(deckId)
+                .orElseThrow(() -> new EntityNotFoundException("Deck not found"));
+
+        List<Card> cards = requests.stream()
+                .map(req -> buildCard(deck, req))
+                .toList();
+
+        return cardRepository.saveAll(cards);
+    }
+
 
     //VIEW
     public List<Card> getCardByDeck(Long deckId) {
@@ -138,4 +167,18 @@ public class CardService {
     public List<Card> getDueCards(Long deckId){
         return cardRepository.findByDeckIdAndNextReviewLessThanEqual(deckId, LocalDate.now());
     }
+
+    private boolean isValidDictionaryWord(String word) {
+
+        if (word == null || word.isBlank()) return false;
+
+        word = word.trim();
+
+        // Se tiver espaços, não é palavra
+        if (word.contains(" ")) return false;
+
+        // Apenas letras (sem números, acentos, hífens, etc)
+        return word.matches("^[a-zA-Z]+$");
+    }
+
 }

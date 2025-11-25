@@ -6,6 +6,8 @@ import br.edu.fatecpg.reviu.dto.requests.ReviewRequestDTO;
 import br.edu.fatecpg.reviu.dto.responses.CardResponseDTO;
 import br.edu.fatecpg.reviu.dto.responses.UploadResponseDTO;
 import br.edu.fatecpg.reviu.services.CardService;
+import br.edu.fatecpg.reviu.services.GeminiAiService;
+import br.edu.fatecpg.reviu.services.PDFService;
 import br.edu.fatecpg.reviu.services.UploadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,6 +33,8 @@ import java.util.List;
 public class CardController {
     private final CardService cardService;
     private final UploadService  uploadService;
+    private final GeminiAiService geminiAiService;
+    private final PDFService pdfService;
 
     @PostMapping
     @Operation(
@@ -139,5 +144,24 @@ public class CardController {
     public ResponseEntity<UploadResponseDTO> upload(@RequestParam MultipartFile file) throws IOException {
         String url = uploadService.uploadFile(file);
         return ResponseEntity.ok(new UploadResponseDTO(url));
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<Card>> createMany(
+            @PathVariable Long deckId,
+            @RequestBody List<CardRequestDTO> requests
+    ) {
+        List<Card> cards = cardService.createManyCards(deckId, requests);
+        return ResponseEntity.ok(cards);
+    }
+
+    @PostMapping("/generate-from-file")
+    public ResponseEntity<String> generateFromPdf(@RequestParam("file") MultipartFile file) {
+        String text = pdfService.extractText(file);
+        String jsonCards = geminiAiService.createCards(text);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "application/json")
+                .body(jsonCards);
     }
 }

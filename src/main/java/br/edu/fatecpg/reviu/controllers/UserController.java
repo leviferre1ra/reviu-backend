@@ -52,7 +52,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Senha atual incorreta.");
         }
 
-        // 3. Seta a nova senha
+        // Seta a nova senha
         user.setPassword(passwordEncoder.encode(body.newPassword()));
         userRepository.save(user);
 
