@@ -37,18 +37,27 @@ public class DictionaryAPIService {
         try {
             JsonNode root = mapper.readTree(json);
 
-            // root[0].phonetics[i].audio
-            for (JsonNode phonetic : root.get(0).get("phonetics")) {
-                JsonNode audioNode = phonetic.get("audio");
-                if (audioNode != null && !audioNode.asText().isBlank()) {
-                    return audioNode.asText(); // retorna o primeiro áudio disponível
+            // Verifica se o root é um array e tem pelo menos 1 elemento
+            if (root.isArray() && root.size() > 0) {
+                JsonNode firstEntry = root.get(0);
+
+                // Verifica se "phonetics" existe e não é vazio
+                JsonNode phonetics = firstEntry.get("phonetics");
+                if (phonetics != null && phonetics.isArray() && phonetics.size() > 0) {
+                    for (JsonNode phonetic : phonetics) {
+                        JsonNode audioNode = phonetic.get("audio");
+                        if (audioNode != null && !audioNode.asText().isBlank()) {
+                            return audioNode.asText(); // retorna o primeiro áudio disponível
+                        }
+                    }
                 }
             }
 
-            return null; // caso não tenha áudio
+            // Nenhum áudio disponível
+            return null;
 
-        } catch (Exception e){
-            throw new RuntimeException("Erro ao extrair áudio: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao extrair áudio: " + e.getMessage(), e);
         }
     }
 }

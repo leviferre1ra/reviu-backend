@@ -85,22 +85,51 @@ public class CardService {
     }
 
     //UPDATE
-    public Card updateCard(Long deckId, Long cardId, CardRequestDTO request){
+    public Card updateCard(Long deckId, Long cardId, CardRequestDTO request) {
         Deck deck = deckRepository.findById(deckId)
                 .orElseThrow(() -> new RuntimeException("Deck not found"));
 
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
 
-        if (!card.getDeck().getId().equals(deck.getId())){
+        if (!card.getDeck().getId().equals(deckId)) {
             throw new IllegalArgumentException("This card does not belong to this deck");
         }
 
-        card.setFrontText(request.frontText());
-        card.setBackText(request.backText());
-        return cardRepository.save(card);
+        // Atualiza frontText se o usuário mandou
+        if (request.frontText() != null) {
+            card.setFrontText(request.frontText());
+        }
 
+        // Atualiza backText se o usuário mandou
+        if (request.backText() != null) {
+            card.setBackText(request.backText());
+        }
+
+        // Atualiza imagem apenas se o usuário mandou alguma imagem
+        if (request.imageUrl() != null) {
+            card.setImageUrl(request.imageUrl());
+        }
+
+        // -------- ÁUDIO --------
+        if (request.audioUrl() != null) {
+            // Usuário mandou explicitamente → substitui
+            card.setAudioUrl(request.audioUrl());
+
+        } else if (request.frontText() != null) {
+            // Usuário mudou o frontText → tentar pegar novo áudio
+            String word = request.frontText().trim();
+
+            if (isValidDictionaryWord(word)) {
+                String audio = dictionaryAPIService.getFirstAudioUrl(word);
+                card.setAudioUrl(audio);
+            }
+        }
+        // Se audioUrl e frontText NÃO foram enviados → mantém o áudio atual
+
+        return cardRepository.save(card);
     }
+
 
     //DELETE
     public void deleteCard(Long deckId, Long cardId){
