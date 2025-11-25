@@ -40,19 +40,19 @@ public class UserController {
     })
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDTO body) {
 
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+        User userPrincipal = (User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
 
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+        // Busca o usuário no banco
+        User user = userRepository.findByEmail(userPrincipal.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Valida se a senha atual esta correta
+        // Valida a senha atual
         if (!passwordEncoder.matches(body.currentPassword(), user.getPassword())) {
             return ResponseEntity.badRequest().body("Senha atual incorreta.");
         }
 
-        // Seta a nova senha
+        // Atualiza a senha
         user.setPassword(passwordEncoder.encode(body.newPassword()));
         userRepository.save(user);
 

@@ -46,7 +46,7 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Credenciais inválidas"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
-    public ResponseEntity login(@RequestBody LoginRequestDTO body){
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO body){
         User user = this.userRepository.findByEmail(body.email()).orElseThrow(() -> new RuntimeException("User not found"));
         if(passwordEncoder.matches(body.password(), user.getPassword())){
             String token = this.tokenService.generateToken(user);
@@ -64,7 +64,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Registro realizado com sucesso, verifique seu e-mail"),
             @ApiResponse(responseCode = "400", description = "E-mail já cadastrado ou dados inválidos")
     })
-    public ResponseEntity register(@Valid @RequestBody RegisterRequestDTO body){
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequestDTO body){
         Optional<User> user = this.userRepository.findByEmail(body.email());
         if (user.isEmpty()) {
             User newUser = new User();
@@ -73,6 +73,8 @@ public class AuthController {
             newUser.setName(body.name());
             newUser.setUsername(body.username());
 
+            String code = authService.generateCode();
+            newUser.setVerificationCode(code);
             newUser.setVerificationExpiry(Instant.now().plus(1, ChronoUnit.HOURS));
             newUser.setVerified(false);
 
